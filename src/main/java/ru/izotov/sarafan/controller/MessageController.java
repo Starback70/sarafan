@@ -63,8 +63,8 @@ public class MessageController {
         return messageFromDb;
     }
 
-    @DeleteMapping("id")
-//    @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
+//    @DeleteMapping("id")
+    @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     public void delete(@PathVariable String id) {
         Map<String, String> message = getMessage(id);
         messages.remove(message);
