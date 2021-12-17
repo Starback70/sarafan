@@ -4,17 +4,19 @@ function getIndex(list, id) {
             return i;
         }
     }
+
     return -1;
 }
 
-var messageApi = Vue.resource('/message/{id}');
+
+var messageApi = Vue.resource('/message{/id}');
 
 Vue.component('message-form', {
-    props: ['messages', "messageAttr"],
+    props: ['messages', 'messageAttr'],
     data: function () {
         return {
             text: '',
-            id: ""
+            id: ''
         }
     },
     watch: {
@@ -37,28 +39,27 @@ Vue.component('message-form', {
                     result.json().then(data => {
                         var index = getIndex(this.messages, data.id);
                         this.messages.splice(index, 1, data);
-                        this.text = '';
-                        this.id = '';
+                        this.text = ''
+                        this.id = ''
                     })
                 )
             } else {
                 messageApi.save({}, message).then(result =>
                     result.json().then(data => {
                         this.messages.push(data);
-                        this.text = '';
+                        this.text = ''
                     })
                 )
             }
         }
     }
-})
-;
+});
 
 Vue.component('message-row', {
-    props: ['message', "editMethod", 'messages'],
+    props: ['message', 'editMethod', 'messages'],
     template: '<div>' +
         '<i>({{ message.id }})</i> {{ message.text }}' +
-        '<span style="position: absolute; right: 0;">' +
+        '<span style="position: absolute; right: 0">' +
         '<input type="button" value="Edit" @click="edit" />' +
         '<input type="button" value="X" @click="del" />' +
         '</span>' +
@@ -87,9 +88,9 @@ Vue.component('messages-list', {
     },
     template:
         '<div style="position: relative; width: 300px;">' +
-        '<message-form :messages="messages" :messageAttr="message"/>' +
+        '<message-form :messages="messages" :messageAttr="message" />' +
         '<message-row v-for="message in messages" :key="message.id" :message="message" ' +
-        ':editMethod="editMethod" :messages="messages"/>' +
+        ':editMethod="editMethod" :messages="messages" />' +
         '</div>',
     created: function () {
         messageApi.get().then(result =>
@@ -107,8 +108,23 @@ Vue.component('messages-list', {
 
 var app = new Vue({
     el: '#app',
-    template: '<messages-list :messages="messages"/>',
+    template:
+        '<div>' +
+            '<div v-if="!profile">Необходимо авторизоваться через <a href="/login">Google</a></div>' +
+            '<div v-else>' +
+            '<div>{{profile.name}}&nbsp;<a href="/logout">Выйти</div>' +
+            '<messages-list :messages="messages"/>' +
+            '</div>' +
+        '</div>',
     data: {
-        messages: []
-    }
+        messages: frontendData.messages,
+        profile: frontendData.profile
+    },
+    created: function () {
+        // messageApi.get().then(result =>
+        //     result.json().then(data =>
+        //         data.forEach(message => this.messages.push(message))
+        //     )
+        // )
+    },
 })
